@@ -1,1 +1,40 @@
+print("""
+Здравствуйте! Я Банкомат для выдачи денег.
+В данный момент для выдачи доступны купюры:
+100, 200, 500, 1000, 5000
 
+Какую сумму вы хотите снять?
+""")
+value = int(input("Ввод: "))
+
+valueGood = 0
+while(value > 99):
+    value -= 100
+    valueGood += 1
+if(value > 0):
+    print("Операция невозможна! Отсутствуют купюры.")
+    exit()
+
+money100 = money200 = money500 = money1000 = money5000 = 0
+while (valueGood != 0):
+    if (valueGood >= 50):
+        money5000 += 1
+        valueGood -= 50
+    elif (valueGood >= 10):
+        money1000 += 1
+        valueGood -= 10
+    elif (valueGood >= 5):
+        money500 += 1
+        valueGood -= 5
+    elif (valueGood >= 2):
+        money200 += 1
+        valueGood -= 2
+    elif (valueGood >= 1):
+        money100 += 1
+        valueGood -= 1
+print("Выданы купюры номиналом:")
+print("5000:", money5000)
+print("1000:", money1000)
+print("500:", money500)
+print("200:", money200)
+print("100:", money100)
