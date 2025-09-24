@@ -13,14 +13,14 @@ L1 =[3, 10, 5, 8, 1]
 L2 = list(range(10))
 L3 = ["L" * i for i in range(1, 10)]
 L4 = ["L" * L1[i] for i in range (5)]
-L5 = *L1 + *L3 + *L4
-L6 = sort(L1)
+L5 = L1 + L3 + L4
+L6 = sorted(L1)
 
 print(f"""
-      L1:{*L1}
-      L2:{*L2}
-      L3:{*L3}
-      L4:{*L4}
-      L5:{*L5}
-      L6:{*L6}
+      L1:{L1}
+      L2:{L2}
+      L3:{L3}
+      L4:{L4}
+      L5:{L5}
+      L6:{L6}
       """)
