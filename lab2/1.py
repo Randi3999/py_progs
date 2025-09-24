@@ -7,34 +7,30 @@
 - добавляет перед первым элементом списка L1 три нуля, в конец списка – три элемента с заданным  значением  Z и выводит список на экран,
 - сортирует список L1 по возрастанию и выводит его на экран.
 """
-from random import randint
-from math import sqrt
-L1 = []
-for i in range(20):
-    L1.append(randint(-20,20))
-print("1:", L1)
+import random 
+import math 
+
+L1 = [random.randint(-20,20) for _ in range(20)]
+print("L1:", L1)
 
 L2 = []
-for i in range(len(L1)):
-    if(L1[i] < 0): L2.append(L1[i] * 2)
-    else: L2.append(sqrt(L1[i]))
-print("2:", L2)
+for x in L1:
+    if x < 0:
+        L2.append(x * 2)
+    elif x > 0:
+        L2.append(round(math.sqrt(x), 3))
+    else:
+        L2.append(0)
+print("L2:", L2)
 
-for i in range(len(L1)):
-    if(L1[i] < 0): L1.insert(i - 1, 0)
-print("3:", L1)
-
-K = int(input("Значение К: "))
-for i in range(len(L1)):
-    if(L1[i] == K): del L1[i]
-print("4:", L1)
-
-L1.insert(0, 0) * 3
-Z = int(input("Значение Z: "))
-L1.append(Z) * 3
-print("5:", L1)
-
-print("6:", L1.sort)
+i = 0
+while i < len(L1):
+    if L1[i] < 0:
+        L1.insert(i, 0)
+        i += 2
+    else:
+        i += 1
+print
 
 
 
