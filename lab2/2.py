@@ -6,15 +6,20 @@
 Формат плавающей точки: x = 2.5073 * 10 ** 1
 """
 
-value = float(input("Введите число: "))
+from decimal import Decimal
+origValue = Decimal(input("Введите число: "))
 count = 0
-cntRound = 0
-while (value < 1):
-    value *= 10
-    count += 1
-rmValue = value
-
-if (count > 0):
-    print("Формат плавающей точки: x =", round(value, 13), "* 10 **", count)
+value = abs(origValue)
+if value < 1:
+    while (value < 1):
+        value *= 10
+        count -= 1
+elif value > 10:
+    while (value > 10):
+        value /= 10
+        count += 1
+if origValue < 0:
+    origValue = -value
 else:
-    print("Формат плавающей точки: x =", value)
+    origValue = value
+print("Формат плавающей точки: x =", origValue, "* 10 **", count)
