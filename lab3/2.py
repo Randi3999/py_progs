@@ -20,3 +20,25 @@
 	Интересная: 5
 ```
 """
+n = int(input("Введите кол-во заказов: "))
+orders = {}
+
+for i in range(n):
+    data = input(f"{i+1} заказ: ").split()
+    if len(data) < 3:
+        continue
+        
+    customer = data[0]
+    pizza = ' '.join(data[1:-1])
+    count = int(data[-1])
+    
+    if customer not in orders:
+        orders[customer] = {}
+    if pizza not in orders[customer]:
+        orders[customer][pizza] = 0
+    orders[customer][pizza] += count
+
+for customer in sorted(orders.keys()):
+    print(f"{customer}:")
+    for pizza in sorted(orders[customer].keys()):
+        print(f"    {pizza}: {orders[customer][pizza]}")

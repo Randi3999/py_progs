@@ -13,32 +13,40 @@ import math
 # 1
 L1 = [random.randint(-20,20) for _ in range(20)]
 print("L1:", L1)
-
+print(" ")
 # 2
-L2 = [math.sqrt(x) if x >= 0 else (x*2) for x in L1]
+L2 = [math.sqrt(x) if x > 0 else (x * 2 if x < 0 else x) for x in L1]
 print("L2:", L2)
+print(" ")
 
 # 3
 i = 0
 while i < len(L1):
     if L1[i] < 0:
         L1.insert(i, 0)
-        i += 2
-    else:
         i += 1
+    i += 1
 print("L1 после вставки 0 перед отрицаительными:", L1)
+print(" ")
 
-"""
+# 4
 K = int(input("Введите значение K: "))
-L1 = [x for x in L1 if x != K]
+while K in L1:
+    L1.remove(K)
 print(f"L1 после удаления всех элементов со значением {K}:", L1)
+print(" ")
 
+# 5
 Z = int(input("Введите значение Z: "))
-L1 = [0, 0, 0] + L1 + [Z, Z, Z]
+# Добавляем три нуля в начало
+L1[0:0] = [0, 0, 0]
+# Добавляем три элемента Z в конец
+L1.extend([Z, Z, Z])
 print("L1 изменённое:", L1)
+print(" ")
 
+# 6
 L1.sort()
 print("Отсортированный список L1:", L1)
-"""
 
 

@@ -13,26 +13,15 @@
 
 Первую строку нельзя получить из второй с помощью циклического сдвига.
 """
+s1 = input("Первая строка: ")
+s2 = input("Вторая строка: ")
 
-sizeList = int(input("Введите количество значений в обоих листах: "))
-valList1 = []
-for i in range (sizeList):
-    value = input(f"Введите значение списка 1 под номером {i}: ")
-    valList1.append(value)
-
-print(" ")
-valList2 = []
-for i in range (sizeList):
-    value = input(f"Введите значение списка 2 под номером {i}: ")
-    valList2.append(value)
-
-print("Первая строка:", *valList1)
-print("Вторая строка:", *valList2)
-
-rotatedValList1 = valList1[-2:] + valList1[:-2]
-print("rVList:", rotatedValList1)
-if(rotatedValList1 == valList2):
-    print(f"Первая строка получается из второй со сдвигом 2")
-    exit()
-
-print("Первую строку нельзя получить из второй с помощью циклического сдвига.")
+if len(s1) != len(s2):
+    print("Первую строку нельзя получить из второй с помощью циклического сдвига.")
+else:
+    s2_double = s2 + s2
+    if s1 in s2_double:
+        shift = s2_double.index(s1)
+        print(f"Первая строка получается из второй со сдвигом {shift}.")
+    else:
+        print("Первую строку нельзя получить из второй с помощью циклического сдвига.")

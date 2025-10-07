@@ -1,10 +1,10 @@
 lab1: passed
 lab2 dev {
-    1 - dev
+    1 - complete, not pass
     2 - complete, not pass
-    3 - dev
+    3 - complete, not pass
     4 - passed
-    5 - dev
+    5 - complete, not pass
 }
 lab3: not start {
     1 -

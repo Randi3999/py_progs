@@ -16,3 +16,21 @@
 Иван мог загадать следующие числа: 1 3 5
 ```
 """
+n = int(input("Введите максимальное число: "))
+possible_numbers = set(range(1, n + 1))
+
+while True:
+    question = input("\nНужное число есть среди вот этих чисел: ")
+    
+    if question == "Помогите!":
+        break
+    
+    current_set = set(map(int, question.split()))
+    
+    answer = input("Ответ Ивана: ")
+    
+    if answer == "Да":
+        possible_numbers &= current_set
+    elif answer == "Нет":
+        possible_numbers -= current_set
+print("\nИван мог загадать следующие числа:", *sorted(possible_numbers))

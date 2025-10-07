@@ -17,3 +17,20 @@
 По городу Рим данных нет.
 ````
 """
+K = int(input("Кол-во стран: "))
+
+city_to_country = {}
+
+for i in range(K):
+    parts = input(f"{i+1} страна: ").split()
+    country = parts[0]
+    cities = parts[1:]
+    for city in cities:
+        city_to_country[city] = country
+
+for i in range(3):
+    city = input(f"{i+1} город: ")
+    if city in city_to_country:
+        print(f"Город {city} расположен в стране {city_to_country[city]}.")
+    else:
+        print(f"По городу {city} данных нет.")

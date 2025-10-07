@@ -7,3 +7,17 @@ s = 'aaaabbсaa' преобразуется в 'a4b2с1a2', то есть гру
 
 Закодированная строка: a2A2b2с1a3A1
 """
+s = input("Введите строку: ")
+if not s:
+    print("Закодированная строка: ")
+else:
+    count = 1
+    result = []
+    for i in range(1, len(s)):
+        if s[i] == s[i-1]:
+            count += 1
+        else:
+            result.append(s[i-1] + str(count))
+            count = 1
+    result.append(s[-1] + str(count))
+    print("Закодированная строка:", ''.join(result))
