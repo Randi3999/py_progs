@@ -11,7 +11,7 @@ lab3: not start {
     2 - complete, not pass
     3 - complete, not pass
     4 - dev
-    5 -
+    5 - complete, not pass
 }
 lab4: not start {
     1 -
