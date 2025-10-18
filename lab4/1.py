@@ -4,3 +4,28 @@
 Например генератор kollats(3) должен выдавать: 3 10 5 16 8 4 2 1
 """
 
+def kollats(x):
+    if (x % 2 == 0):
+        x = x // 2
+    elif (x == 1):
+        return
+    elif (x % 2 != 0):
+        x = (3 * x) + 1
+    print(x, end=' ')
+    return kollats(x)
+
+def check_user_input():
+    global x
+    while True:
+        user_input = input("Введите натуральное число x: ")
+        if user_input.isdigit() and int(user_input) > 0:
+            x = int(user_input)
+            break
+        else:
+            print("Ошибка: введите корректное натуральное число (целое и больше нуля).")
+
+x: int = None
+check_user_input()
+print("Последовательность Коллатца для числа", str(x) + ":", end=' ')
+print(x, end=' ')
+kollats(x)
