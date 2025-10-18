@@ -3,8 +3,8 @@ lab2: passed
 lab3: passed
 lab4: dev {
     1 - complete, not pass
-    2 - dev
-    3 - dev
+    2 - complete, not pass
+    3 - complete, not pass
 }
 lab5: not start {
     1 -

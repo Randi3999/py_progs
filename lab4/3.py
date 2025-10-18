@@ -7,3 +7,35 @@
 4) Удалить из матрицы 1 и 4 столбцы.
 5) Транспонировать полученную матрицу.
 """
+
+import numpy
+
+m1 = numpy.random.randint(1, 10+1, size=(10))
+m2 = numpy.random.randint(1, 10+1, size=(10))
+print("m1:", m1)
+print("m2:", m2)
+
+# 1
+m3 = numpy.setxor1d(m1, m2)
+print("m3:", m3)
+
+# 2
+m1[(m1 % 2 == 0) | (m1 % 3 == 0)] = 1
+print("m1 после замены нужных значений на 1:", m1)
+
+# 3
+m1_and_m2 = numpy.concatenate((m1, m2))
+print("Слитые массивы m1 и m2:", m1_and_m2)
+matrix = m1_and_m2.reshape(4,5)
+print("Преобразованная матрица 4х5:")
+print(matrix)
+
+# 4
+matrix = numpy.delete(matrix, 0, axis=1)
+matrix = numpy.delete(matrix, 2, axis=1)
+print("Матрица после удаления 1 и 4 столбца:")
+print(matrix)
+
+# 5
+print("Транспонированная матрица:")
+print(matrix.transpose())

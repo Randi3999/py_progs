@@ -6,3 +6,26 @@
 4) Вставить в матрицу строку из минимального элемента перед первой строкой.
 5) Вычислить сумму и среднее арифметическое всех элементов матрицы.
 """
+
+import numpy
+
+# 1
+matrix = numpy.random.randint(-10, 11, size=(8, 8))
+print("Исходная матрица:")
+print(matrix)
+
+#2
+print("Центральная часть 4х4:")
+print(matrix[2:6, 2:6])
+
+# 3
+print("Матрица после удаления строк, содержащих минимальный элемент матрицы:")
+print(matrix[~numpy.any(matrix == numpy.min(matrix), axis=1)] )
+
+# 4
+print("Матрица после вставки строки из минимального элемента:")
+print(numpy.insert(matrix, 0, numpy.full((matrix.shape[1],), numpy.min(matrix)), axis=0))
+
+# 5
+print("Сумма всех элементов:", numpy.sum(matrix))
+print("Среднее арифметическое всех элементов:", numpy.mean(matrix))
