@@ -6,8 +6,8 @@ lab4: dev {
     2 - complete, not pass
     3 - complete, not pass
 }
-lab5: not start {
-    1 -
+lab5: dev {
+    1 - complete, not pass
 }
 lab6: not start {
     1 -
