@@ -5,6 +5,8 @@ from datetime import datetime, date
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+import pygame
 
 # ============================================================================
 # КОНФИГУРАЦИЯ БАЗЫ ДАННЫХ
@@ -13,7 +15,7 @@ class Config:
     DB_CONFIG = {
         'dbname': 'postgres',
         'user': 'postgres',
-        'password': 'postgres',  # замените на свой пароль
+        'password': 'postgres',
         'host': 'localhost',
         'port': '5432'
     }
@@ -30,7 +32,6 @@ class Config:
             conn = Config.get_connection()
             cursor = conn.cursor()
 
-            # Создание таблицы событий
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS events (
                     id SERIAL PRIMARY KEY,
@@ -45,7 +46,6 @@ class Config:
             print("База данных инициализирована успешно")
         except Exception as e:
             print(f"Ошибка инициализации базы данных: {e}")
-    # путь к лого
     LOGO_PATH = "календарь_лого_Климов.png"
 
 # ============================================================================
@@ -56,25 +56,21 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle('Календарь событий')
         self.setFixedSize(500, 400)
-        self.background_enabled = False  # Флаг для фонового изображения
-        self.original_stylesheet = ""  # Сохраняем оригинальный стиль
+        self.background_enabled = False
+        self.original_stylesheet = ""
         self.init_ui()
         self.init_tray_icon()
 
     def init_ui(self):
-        # Центральный виджет
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        self.central_widget = central_widget  # Сохраняем ссылку
+        self.central_widget = central_widget
 
-        # Сохраняем оригинальный стиль виджета
         self.original_stylesheet = central_widget.styleSheet()
 
-        # Основной layout
         layout = QVBoxLayout()
         central_widget.setLayout(layout)
 
-        # Заголовок
         title_label = QLabel('Календарь событий')
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet('''
@@ -85,13 +81,10 @@ class MainWindow(QMainWindow):
         ''')
         layout.addWidget(title_label)
 
-        # Логотип из файла
         logo_label = QLabel()
         try:
-            # Пробуем загрузить логотип из файла
             logo_pixmap = QPixmap(Config.LOGO_PATH)
             if logo_pixmap.isNull():
-                # Если файл не найден, создаем временный логотип
                 logo_pixmap = QPixmap(400, 150)
                 logo_pixmap.fill(QColor(52, 152, 219))
                 painter = QPainter(logo_pixmap)
@@ -102,13 +95,11 @@ class MainWindow(QMainWindow):
                 painter.drawText(170, 90, "C")
                 painter.end()
             else:
-                # Масштабируем логотип под нужный размер
                 logo_pixmap = logo_pixmap.scaled(400, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
             logo_label.setPixmap(logo_pixmap)
         except Exception as e:
             print(f"Ошибка загрузки логотипа: {e}")
-            # Создаем временный логотип при ошибке
             logo_pixmap = QPixmap(400, 150)
             logo_pixmap.fill(QColor(52, 152, 219))
             logo_label.setPixmap(logo_pixmap)
@@ -116,10 +107,8 @@ class MainWindow(QMainWindow):
         logo_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(logo_label)
 
-        # Layout для кнопок
         buttons_layout = QHBoxLayout()
 
-        # Кнопка "Добавить событие"
         self.add_button = QPushButton('Добавить событие')
         self.add_button.setStyleSheet('''
             QPushButton {
@@ -137,7 +126,6 @@ class MainWindow(QMainWindow):
         self.add_button.clicked.connect(self.open_add_event_window)
         buttons_layout.addWidget(self.add_button)
 
-        # Кнопка "Просмотр событий"
         self.view_button = QPushButton('Просмотр событий')
         self.view_button.setStyleSheet('''
             QPushButton {
@@ -155,12 +143,10 @@ class MainWindow(QMainWindow):
         self.view_button.clicked.connect(self.open_view_events_window)
         buttons_layout.addWidget(self.view_button)
 
-        # Добавляем layout с кнопками в основной layout
         layout.addLayout(buttons_layout)
 
-        # Кнопка "Музыкальное сопровождение"
         self.music_button = QPushButton('Музыкальное сопровождение')
-        self.music_button.setCheckable(True)  # Делаем кнопку переключаемой
+        self.music_button.setCheckable(True)
         self.music_button.setChecked(False)
         self.music_button.setStyleSheet('''
             QPushButton {
@@ -195,13 +181,11 @@ class MainWindow(QMainWindow):
     def toggle_music(self):
         """Включение/выключение музыкального сопровождения и фона"""
         if self.music_button.isChecked():
-            # Включаем музыку
             try:
                 self.play_music()
                 self.music_button.setText('Музыкальное сопровождение (вкл)')
                 print("Музыка включена")
 
-                # Включаем фоновое изображение
                 self.enable_background()
                 print("Фоновое изображение включено")
 
@@ -209,23 +193,16 @@ class MainWindow(QMainWindow):
                 print(f"Ошибка воспроизведения музыки: {e}")
                 self.music_button.setChecked(False)
         else:
-            # Выключаем музыку
             self.stop_music()
             self.music_button.setText('Музыкальное сопровождение')
             print("Музыка выключена")
 
-            # Выключаем фоновое изображение
             self.disable_background()
             print("Фоновое изображение выключено")
 
     def enable_background(self):
-        """Включение фонового изображения"""
         try:
-            # Проверяем наличие файла с фоновым изображением
             background_path = "background_photo.jpg"
-
-            # Используем os.path для проверки существования файла
-            import os
 
             if not os.path.exists(background_path):
                 print(f"Файл фонового изображения не найден: {background_path}")
@@ -233,13 +210,10 @@ class MainWindow(QMainWindow):
                 print("Создайте файл background_photo.jpg в той же директории")
                 return
 
-            # Создаем абсолютный путь для корректной работы CSS
             abs_background_path = os.path.abspath(background_path)
-            # Для Windows нужно заменить обратные слеши
             if os.name == 'nt':
                 abs_background_path = abs_background_path.replace('\\', '/')
 
-            # Устанавливаем фоновое изображение для центрального виджета
             background_style = f"""
                 #central_widget {{
                     background-image: url('file://{abs_background_path}');
@@ -285,10 +259,8 @@ class MainWindow(QMainWindow):
                 }}
             """
 
-            # Устанавливаем objectName для центрального виджета
             self.central_widget.setObjectName("central_widget")
 
-            # Устанавливаем objectName для кнопок
             self.view_button.setObjectName("view_button")
             self.music_button.setObjectName("music_button")
 
@@ -303,18 +275,14 @@ class MainWindow(QMainWindow):
             traceback.print_exc()
 
     def disable_background(self):
-        """Выключение фонового изображения и возврат к оригинальному стилю"""
         try:
-            # Убираем objectName
             self.central_widget.setObjectName("")
             self.view_button.setObjectName("")
             self.music_button.setObjectName("")
 
-            # Восстанавливаем оригинальный стиль
             self.central_widget.setStyleSheet(self.original_stylesheet)
             self.background_enabled = False
 
-            # Восстанавливаем стили кнопок
             self.add_button.setStyleSheet('''
                 QPushButton {
                     background-color: #27ae60;
@@ -367,22 +335,15 @@ class MainWindow(QMainWindow):
             print(f"Ошибка при отключении фонового изображения: {e}")
 
     def play_music(self):
-        """Воспроизведение MP3 файла"""
-        # Проверяем наличие модуля pygame
         try:
-            import pygame
             if not hasattr(self, 'pygame_initialized'):
                 pygame.mixer.init()
                 self.pygame_initialized = True
 
-            # Загружаем и воспроизводим музыку
-            pygame.mixer.music.load("music.mp3")  # Укажите путь к вашему MP3 файлу
-            pygame.mixer.music.play(-1)  # -1 означает бесконечное повторение
+            pygame.mixer.music.load("music.mp3")
+            pygame.mixer.music.play(-1)
         except ImportError:
             print("Ошибка: не установлен модуль pygame. Установите его: pip install pygame")
-            # Альтернативный вариант с использованием Qt
-            from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-            from PyQt5.QtCore import QUrl
 
             if not hasattr(self, 'media_player'):
                 self.media_player = QMediaPlayer()
@@ -391,27 +352,20 @@ class MainWindow(QMainWindow):
             self.media_player.play()
 
     def stop_music(self):
-        """Остановка воспроизведения музыки"""
         try:
-            import pygame
             if hasattr(self, 'pygame_initialized'):
                 pygame.mixer.music.stop()
         except:
-            # Используем Qt версию
             if hasattr(self, 'media_player'):
                 self.media_player.stop()
 
     def init_tray_icon(self):
-        """Инициализация иконки в системном трее"""
         if QSystemTrayIcon.isSystemTrayAvailable():
             self.tray_icon = QSystemTrayIcon(self)
 
-            # Установка иконки для трея
             try:
-                # Используем тот же путь к логотипу
                 tray_pixmap = QPixmap(Config.LOGO_PATH)
                 if not tray_pixmap.isNull():
-                    # Масштабируем для иконки трея (можно уменьшить размер)
                     icon_size = QSize(32, 32)
                     tray_pixmap = tray_pixmap.scaled(icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     self.tray_icon.setIcon(QIcon(tray_pixmap))
@@ -423,7 +377,6 @@ class MainWindow(QMainWindow):
                 print(f"Ошибка загрузки иконки для трея: {e}")
                 self.create_default_tray_icon()
 
-            # Создание меню для трея
             tray_menu = QMenu()
 
             show_action = QAction("Показать", self)
@@ -443,32 +396,25 @@ class MainWindow(QMainWindow):
             self.tray_icon.setContextMenu(tray_menu)
             self.tray_icon.activated.connect(self.tray_icon_activated)
 
-            # Показываем иконку в трее
             self.tray_icon.show()
 
-            # Устанавливаем всплывающие подсказки
             self.tray_icon.setToolTip("Календарь событий")
 
     def create_default_tray_icon(self):
-        """Создание иконки по умолчанию для трея"""
-        # Создаем более качественную иконку по умолчанию
-        size = 64  # Больший размер для лучшего качества
+        size = 128
         pixmap = QPixmap(size, size)
         pixmap.fill(Qt.transparent)
 
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # Фон
         painter.setBrush(QColor(52, 152, 219))
         painter.setPen(Qt.NoPen)
         painter.drawEllipse(2, 2, size-4, size-4)
 
-        # Внутренний круг
         painter.setBrush(QColor(241, 196, 15))
         painter.drawEllipse(size//4, size//4, size//2, size//2)
 
-        # Буква "К" (так как у вас календарь)
         painter.setPen(QColor(44, 62, 80))
         painter.setFont(QFont('Arial', size//3))
         painter.drawText(size//3, size*2//3, "К")
@@ -477,23 +423,19 @@ class MainWindow(QMainWindow):
         self.tray_icon.setIcon(QIcon(pixmap))
 
     def show_window(self):
-        """Показать главное окно"""
         self.show()
         self.activateWindow()
         self.raise_()
 
     def hide_window(self):
-        """Скрыть главное окно"""
         self.hide()
 
     def close_application(self):
-        """Завершить приложение"""
         if hasattr(self, 'tray_icon'):
             self.tray_icon.hide()
         QApplication.quit()
 
     def tray_icon_activated(self, reason):
-        """Обработка кликов по иконке в трее"""
         if reason == QSystemTrayIcon.DoubleClick:
             if self.isVisible():
                 self.hide()
@@ -501,8 +443,6 @@ class MainWindow(QMainWindow):
                 self.show_window()
 
     def closeEvent(self, event):
-        """Обработка события закрытия окна"""
-        # Вместо закрытия скрываем окно в трей
         if hasattr(self, 'tray_icon') and self.tray_icon.isVisible():
             event.ignore()
             self.hide()
@@ -529,7 +469,6 @@ class AddEventWindow(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        # Заголовок
         title_label = QLabel('Добавление нового события')
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet('''
@@ -540,7 +479,6 @@ class AddEventWindow(QWidget):
         ''')
         layout.addWidget(title_label)
 
-        # Поле для названия события
         name_layout = QHBoxLayout()
         name_label = QLabel('Название события:')
         name_label.setFixedWidth(150)
@@ -550,7 +488,6 @@ class AddEventWindow(QWidget):
         name_layout.addWidget(self.name_input)
         layout.addLayout(name_layout)
 
-        # Поле для даты события
         date_layout = QHBoxLayout()
         date_label = QLabel('Дата события:')
         date_label.setFixedWidth(150)
@@ -562,10 +499,8 @@ class AddEventWindow(QWidget):
         date_layout.addWidget(self.date_input)
         layout.addLayout(date_layout)
 
-        # Кнопки
         buttons_layout = QHBoxLayout()
 
-        # Кнопка "Добавить"
         add_button = QPushButton('Добавить')
         add_button.setStyleSheet('''
             QPushButton {
@@ -584,7 +519,6 @@ class AddEventWindow(QWidget):
         add_button.clicked.connect(self.add_event)
         buttons_layout.addWidget(add_button)
 
-        # Кнопка "Отмена"
         cancel_button = QPushButton('Отмена')
         cancel_button.setStyleSheet('''
             QPushButton {
@@ -605,7 +539,6 @@ class AddEventWindow(QWidget):
 
         layout.addLayout(buttons_layout)
 
-        # Сообщение о статусе
         self.status_label = QLabel('')
         self.status_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.status_label)
@@ -636,7 +569,6 @@ class AddEventWindow(QWidget):
             self.status_label.setText('Событие успешно добавлено!')
             self.status_label.setStyleSheet('color: #27ae60;')
 
-            # Очистить поля
             self.name_input.clear()
             self.date_input.setDate(QDate.currentDate())
 
@@ -693,14 +625,12 @@ class ViewEventsWindow(QWidget):
         frame_b.setStyleSheet('background-color: #f8f9fa; padding: 15px;')
         frame_b_layout = QVBoxLayout()
 
-        # Год
         year_label = QLabel('Год:')
         year_label.setStyleSheet('font-size: 14px; font-weight: bold;')
         self.year_input = QSpinBox()
         self.year_input.setRange(2000, 2100)
         self.year_input.setValue(current_date.year)
 
-        # Месяц
         month_label = QLabel('Месяц:')
         month_label.setStyleSheet('font-size: 14px; font-weight: bold; margin-top: 10px;')
         self.month_combo = QComboBox()
@@ -724,7 +654,6 @@ class ViewEventsWindow(QWidget):
         frame_c.setStyleSheet('background-color: white;')
         frame_c_layout = QVBoxLayout()
 
-        # Заголовок таблицы
         table_header = QLabel('События')
         table_header.setAlignment(Qt.AlignCenter)
         table_header.setStyleSheet('''
@@ -736,7 +665,6 @@ class ViewEventsWindow(QWidget):
         ''')
         frame_c_layout.addWidget(table_header)
 
-        # Таблица событий
         self.events_table = QTableWidget()
         self.events_table.setColumnCount(5)
         self.events_table.setHorizontalHeaderLabels([
@@ -752,7 +680,6 @@ class ViewEventsWindow(QWidget):
         frame_c_layout.addWidget(self.events_table)
         frame_c.setLayout(frame_c_layout)
 
-        # Добавляем фреймы в контейнер
         container.addWidget(frame_b)
         container.addWidget(frame_c)
         main_layout.addLayout(container)
@@ -765,7 +692,6 @@ class ViewEventsWindow(QWidget):
         frame_d.setStyleSheet('background-color: #ecf0f1; padding: 10px;')
         frame_d_layout = QHBoxLayout()
 
-        # Кнопка "Просмотр"
         view_button = QPushButton('Просмотр')
         view_button.setStyleSheet('''
             QPushButton {
@@ -783,7 +709,6 @@ class ViewEventsWindow(QWidget):
         ''')
         view_button.clicked.connect(self.load_events)
 
-        # Кнопка "Назад"
         back_button = QPushButton('Назад')
         back_button.setStyleSheet('''
             QPushButton {
@@ -808,7 +733,6 @@ class ViewEventsWindow(QWidget):
         frame_d.setLayout(frame_d_layout)
         main_layout.addWidget(frame_d)
 
-        # Загружаем события при открытии окна
         QTimer.singleShot(100, self.load_events)
 
     def get_russian_weekday(self, date_obj):
@@ -845,7 +769,6 @@ class ViewEventsWindow(QWidget):
             conn = Config.get_connection()
             cursor = conn.cursor()
 
-            # Получаем события за указанный месяц и год
             cursor.execute('''
                 SELECT event_name, event_date
                 FROM events
@@ -858,45 +781,36 @@ class ViewEventsWindow(QWidget):
             cursor.close()
             conn.close()
 
-            # Обновляем таблицу
             self.events_table.setRowCount(len(events))
 
             today = date.today()
 
             for row, (event_name, event_date) in enumerate(events):
-                # Название события
                 name_item = QTableWidgetItem(event_name)
 
-                # Дата события
                 date_item = QTableWidgetItem(event_date.strftime('%d.%m.%Y'))
 
-                # День недели
                 weekday_item = QTableWidgetItem(self.get_russian_weekday(event_date))
 
-                # Разница в днях
                 days_diff = self.calculate_days_difference(event_date)
                 days_item = QTableWidgetItem(days_diff)
 
-                # Статус
                 status = ''
                 if event_date == today:
                     status = 'Сегодня'
-                    # Подсвечиваем строку
                     for col in range(5):
                         item = self.events_table.item(row, col)
                         if item:
-                            item.setBackground(QColor(255, 255, 200))  # Светло-желтый фон
+                            item.setBackground(QColor(255, 255, 200))
 
                 status_item = QTableWidgetItem(status)
 
-                # Устанавливаем элементы в таблицу
                 self.events_table.setItem(row, 0, name_item)
                 self.events_table.setItem(row, 1, date_item)
                 self.events_table.setItem(row, 2, weekday_item)
                 self.events_table.setItem(row, 3, days_item)
                 self.events_table.setItem(row, 4, status_item)
 
-            # Автоматическое изменение размера столбцов
             self.events_table.resizeColumnsToContents()
 
         except Exception as e:
@@ -906,14 +820,11 @@ class ViewEventsWindow(QWidget):
 # ЗАПУСК ПРИЛОЖЕНИЯ
 # ============================================================================
 def main():
-    # Инициализация базы данных
     Config.init_database()
 
-    # Создание приложения
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
 
-    # Главное окно
     window = MainWindow()
     window.show()
 
